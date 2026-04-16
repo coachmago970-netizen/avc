@@ -1,4 +1,4 @@
-const CACHE = 'drill-sergeant-v3';
+const CACHE = 'drill-sergeant-v4';
 const ASSETS = ['./', './index.html', './app.js', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -14,9 +14,19 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  // Nunca cachear chamadas pra API do Claude
-  if (e.request.url.includes('api.anthropic.com')) return;
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./index.html')))
-  );
+  // Nunca cachear chamadas de API
+  if (e.request.url.includes('googleapis.com') || e.request.url.includes('anthropic.com')) return;
+  // Network-first pra HTML/JS (pega versão nova sempre que online), cache como fallback
+  if (e.request.mode === 'navigate' || e.request.url.endsWith('.js') || e.request.url.endsWith('.html')) {
+    e.respondWith(
+      fetch(e.request).then(r => {
+        const copy = r.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+        return r;
+      }).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+    );
+    return;
+  }
+  // Cache-first pra assets estáticos (imagens, manifest)
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
