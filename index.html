@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a1f0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DRILL">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>DRILL SERGEANT — APRENDA INGLÊS NA PORRADA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Stint+Ultra+Condensed&family=Special+Elite&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --olive: #3d4a1f;
+  --olive-dark: #1a1f0e;
+  --olive-light: #5a6b2e;
+  --khaki: #a89968;
+  --stencil: #c9b88a;
+  --blood: #8b1a1a;
+  --gold: #d4a437;
+  --paper: #d9d0b4;
+  --black: #0a0a08;
+  --warn: #ff6b00;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--olive-dark);
+  color: var(--paper);
+  font-family: 'JetBrains Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background-image:
+    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px),
+    radial-gradient(ellipse at top, #2a3315 0%, var(--olive-dark) 70%);
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* Noise overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.app { position: relative; z-index: 2; min-height: 100dvh; display: flex; flex-direction: column; }
+
+/* ===== HEADER ===== */
+header {
+  padding: 18px 20px 14px;
+  border-bottom: 3px double var(--khaki);
+  background: rgba(0,0,0,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dog-tag {
+  width: 44px; height: 44px;
+  border: 2px solid var(--stencil);
+  border-radius: 6px;
+  display: grid; place-items: center;
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 28px;
+  color: var(--stencil);
+  background: var(--olive);
+  box-shadow: inset 0 0 0 2px var(--olive-dark), 2px 2px 0 var(--black);
+  transform: rotate(-3deg);
+}
+.title-block h1 {
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  line-height: 0.9;
+  color: var(--stencil);
+  text-shadow: 2px 2px 0 var(--black);
+}
+.title-block .sub {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--khaki);
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+.hud {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--khaki);
+}
+.hud span { display: flex; gap: 5px; align-items: center; }
+.hud b { color: var(--gold); font-weight: 700; }
+
+/* ===== MAIN ===== */
+main {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Setup screen */
+.setup {
+  background: rgba(0,0,0,0.4);
+  border: 2px solid var(--khaki);
+  padding: 22px 18px;
+  position: relative;
+}
+.setup::before {
+  content: 'CLASSIFICADO';
+  position: absolute;
+  top: -10px; left: 16px;
+  background: var(--olive-dark);
+  padding: 0 8px;
+  font-family: 'Stint Ultra Condensed', serif;
+  color: var(--blood);
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+.setup h2 {
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 22px;
+  letter-spacing: 1.5px;
+  color: var(--stencil);
+  margin-bottom: 8px;
+}
+.setup p { font-size: 12px; color: var(--paper); line-height: 1.6; margin-bottom: 14px; }
+.setup label { display: block; font-size: 10px; letter-spacing: 2px; color: var(--khaki); margin-bottom: 6px; text-transform: uppercase; }
+.setup input {
+  width: 100%;
+  background: var(--black);
+  border: 1px solid var(--olive-light);
+  color: var(--paper);
+  padding: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.setup input:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
+.setup .hint { font-size: 10px; color: var(--khaki); margin-top: 8px; line-height: 1.5; }
+.setup .hint a { color: var(--gold); text-decoration: underline; }
+.btn {
+  margin-top: 14px;
+  width: 100%;
+  background: var(--blood);
+  color: var(--paper);
+  border: none;
+  padding: 14px;
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 18px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--black);
+  transition: transform 0.1s, box-shadow 0.1s;
+  text-transform: uppercase;
+}
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--black); }
+.btn.secondary { background: var(--olive); color: var(--stencil); }
+.btn.ghost { background: transparent; border: 1px solid var(--khaki); color: var(--khaki); box-shadow: none; }
+
+/* Mission card */
+.mission {
+  background: var(--paper);
+  color: var(--black);
+  padding: 20px 18px;
+  position: relative;
+  border: 1px solid var(--khaki);
+  box-shadow: 4px 4px 0 var(--black);
+  font-family: 'Special Elite', 'Courier New', monospace;
+}
+.mission::before {
+  content: '';
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 70px; height: 70px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%238b1a1a' stroke-width='3'/%3E%3Ctext x='50' y='42' text-anchor='middle' font-family='monospace' font-size='9' font-weight='bold' fill='%238b1a1a'%3ETOP%3C/text%3E%3Ctext x='50' y='54' text-anchor='middle' font-family='monospace' font-size='9' font-weight='bold' fill='%238b1a1a'%3ESECRET%3C/text%3E%3Ctext x='50' y='66' text-anchor='middle' font-family='monospace' font-size='6' fill='%238b1a1a'%3E%2307114%3C/text%3E%3C/svg%3E") center/contain no-repeat;
+  opacity: 0.6;
+  transform: rotate(12deg);
+}
+.mission-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--blood);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+.mission h2 {
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 26px;
+  letter-spacing: 1px;
+  line-height: 1;
+  margin-bottom: 10px;
+  color: var(--black);
+}
+.mission-briefing {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #222;
+  border-left: 3px solid var(--blood);
+  padding-left: 10px;
+  margin: 12px 0;
+}
+.mission-task {
+  background: var(--black);
+  color: var(--gold);
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+
+/* Chat / resposta */
+.answer-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.answer-box textarea {
+  width: 100%;
+  background: var(--black);
+  border: 1px solid var(--olive-light);
+  color: var(--paper);
+  padding: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  min-height: 90px;
+  resize: vertical;
+}
+.answer-box textarea:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
+
+/* Sarge feedback */
+.sarge {
+  background: linear-gradient(180deg, var(--olive) 0%, var(--olive-dark) 100%);
+  border: 2px solid var(--blood);
+  padding: 16px 14px;
+  position: relative;
+  box-shadow: 0 0 0 1px var(--olive-dark), 4px 4px 0 rgba(139,26,26,0.3);
+}
+.sarge::before {
+  content: '⚠ SGT. HAMMER ⚠';
+  position: absolute;
+  top: -11px; left: 12px;
+  background: var(--blood);
+  color: var(--paper);
+  padding: 2px 10px;
+  font-family: 'Stint Ultra Condensed', serif;
+  letter-spacing: 3px;
+  font-size: 13px;
+}
+.sarge-body {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--paper);
+  white-space: pre-wrap;
+  margin-top: 4px;
+}
+.sarge-body strong { color: var(--gold); }
+.sarge-body em { color: var(--khaki); font-style: normal; background: rgba(0,0,0,0.3); padding: 1px 4px; }
+.sarge.loading .sarge-body::after {
+  content: '▊';
+  animation: blink 0.8s steps(2) infinite;
+  color: var(--gold);
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Actions row */
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* History */
+.history {
+  margin-top: 10px;
+  border-top: 1px dashed var(--khaki);
+  padding-top: 12px;
+}
+.history h3 {
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--khaki);
+  margin-bottom: 8px;
+}
+.log-entry {
+  font-size: 11px;
+  color: var(--paper);
+  padding: 8px 10px;
+  border-left: 2px solid var(--olive-light);
+  margin-bottom: 6px;
+  background: rgba(0,0,0,0.2);
+}
+.log-entry b { color: var(--gold); letter-spacing: 1px; }
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--khaki);
+  opacity: 0.6;
+}
+
+/* Error */
+.error {
+  background: var(--blood);
+  color: var(--paper);
+  padding: 10px 12px;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+/* Hide/show */
+.hidden { display: none !important; }
+
+/* Install banner */
+.install-banner {
+  background: var(--gold);
+  color: var(--black);
+  padding: 10px 14px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.install-banner button {
+  background: var(--black);
+  color: var(--gold);
+  border: none;
+  padding: 6px 10px;
+  font-family: 'Stint Ultra Condensed', serif;
+  letter-spacing: 2px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Stamps decor */
+.stamp {
+  display: inline-block;
+  border: 2px solid var(--blood);
+  color: var(--blood);
+  padding: 2px 6px;
+  font-family: 'Stint Ultra Condensed', serif;
+  letter-spacing: 2px;
+  font-size: 11px;
+  transform: rotate(-4deg);
+  opacity: 0.85;
+}
+
+/* ===== VOICE MODE ===== */
+.mode-switcher {
+  display: flex;
+  gap: 0;
+  border: 2px solid var(--khaki);
+  margin-bottom: 4px;
+}
+.mode-switcher button {
+  flex: 1;
+  background: transparent;
+  color: var(--khaki);
+  border: none;
+  padding: 10px;
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 15px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.mode-switcher button.active {
+  background: var(--khaki);
+  color: var(--olive-dark);
+}
+
+.voice-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 0;
+  min-height: 60vh;
+}
+
+.voice-status {
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--stencil);
+  text-align: center;
+  min-height: 30px;
+  text-shadow: 2px 2px 0 var(--black);
+}
+.voice-status.listening { color: var(--warn); animation: pulse-text 1s infinite; }
+.voice-status.talking { color: var(--gold); }
+.voice-status.error { color: var(--blood); }
+@keyframes pulse-text { 50% { opacity: 0.5; } }
+
+.mic-button {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 4px solid var(--stencil);
+  background: radial-gradient(circle at 30% 30%, var(--olive-light), var(--olive-dark));
+  color: var(--stencil);
+  font-size: 72px;
+  cursor: pointer;
+  position: relative;
+  box-shadow:
+    0 0 0 8px var(--olive-dark),
+    0 0 0 10px var(--khaki),
+    8px 8px 0 var(--black);
+  transition: transform 0.1s;
+  display: grid;
+  place-items: center;
+}
+.mic-button:active { transform: translate(4px, 4px); box-shadow: 0 0 0 8px var(--olive-dark), 0 0 0 10px var(--khaki), 4px 4px 0 var(--black); }
+.mic-button.listening {
+  background: radial-gradient(circle at 30% 30%, #c93030, var(--blood));
+  border-color: var(--gold);
+  animation: pulse-ring 1.2s infinite;
+}
+.mic-button.talking {
+  background: radial-gradient(circle at 30% 30%, var(--gold), #8a6a15);
+  border-color: var(--gold);
+}
+.mic-button:disabled { opacity: 0.4; cursor: not-allowed; }
+@keyframes pulse-ring {
+  0%, 100% { box-shadow: 0 0 0 8px var(--olive-dark), 0 0 0 10px var(--gold), 8px 8px 0 var(--black); }
+  50% { box-shadow: 0 0 0 8px var(--olive-dark), 0 0 0 20px rgba(212,164,55,0.3), 8px 8px 0 var(--black); }
+}
+
+.voice-hint {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--khaki);
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+.voice-transcript {
+  width: 100%;
+  background: rgba(0,0,0,0.4);
+  border-left: 3px solid var(--gold);
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--paper);
+  min-height: 40px;
+  font-style: italic;
+}
+.voice-transcript:empty::before {
+  content: 'Sua fala vai aparecer aqui...';
+  color: var(--khaki);
+  opacity: 0.5;
+}
+
+.voice-response {
+  width: 100%;
+  background: linear-gradient(180deg, var(--olive) 0%, var(--olive-dark) 100%);
+  border: 2px solid var(--blood);
+  padding: 14px;
+  position: relative;
+  min-height: 60px;
+}
+.voice-response::before {
+  content: 'SGT. HAMMER';
+  position: absolute;
+  top: -10px; left: 10px;
+  background: var(--blood);
+  color: var(--paper);
+  padding: 1px 8px;
+  font-family: 'Stint Ultra Condensed', serif;
+  letter-spacing: 2px;
+  font-size: 11px;
+}
+.voice-response-body {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--paper);
+  white-space: pre-wrap;
+}
+
+.voice-controls {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.voice-controls button {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--khaki);
+  color: var(--khaki);
+  padding: 8px;
+  font-family: 'Stint Ultra Condensed', serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  cursor: pointer;
+}
+.voice-controls button:disabled { opacity: 0.3; }
+
+@media (min-width: 520px) {
+  .title-block h1 { font-size: 34px; }
+  .mission h2 { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="brand">
+      <div class="dog-tag">★</div>
+      <div class="title-block">
+        <h1>DRILL SERGEANT</h1>
+        <div class="sub">boot camp de inglês · sem piedade</div>
+      </div>
+    </div>
+    <div class="hud" id="hud">
+      <span>DIA <b id="streak">0</b></span>
+      <span>·</span>
+      <span>XP <b id="xp">0</b></span>
+      <span>·</span>
+      <span>RANK <b id="rank">RECRUTA</b></span>
+    </div>
+  </header>
+
+  <div id="install-banner" class="install-banner hidden">
+    <span>INSTALE ESSA DESGRAÇA NO CELULAR</span>
+    <button id="install-btn">INSTALAR</button>
+  </div>
+
+  <main>
+
+    <!-- SETUP: primeira vez -->
+    <section id="setup-screen" class="setup hidden">
+      <h2>AUTENTICAÇÃO DE RECRUTA</h2>
+      <p>
+        Antes de apanhar, o soldado precisa entregar sua <b>chave da API do Claude</b>.
+        Ela fica guardada <b>só no seu celular</b> — nem eu nem a Anthropic veem.
+      </p>
+      <label for="api-key">CHAVE API (sk-ant-...)</label>
+      <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off">
+      <div class="hint">
+        Pegue sua chave em <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.
+        Precisa ter crédito. Cada missão custa fração de centavo.
+      </div>
+      <button class="btn" id="save-key-btn">ENTRAR NO QUARTEL</button>
+    </section>
+
+    <!-- MODE SWITCHER (aparece depois do setup) -->
+    <div id="mode-switcher" class="mode-switcher hidden">
+      <button id="tab-mission" class="active">MISSÕES</button>
+      <button id="tab-voice">CONVERSA</button>
+    </div>
+
+    <!-- MISSION: tela principal -->
+    <section id="mission-screen" class="hidden">
+      <article class="mission">
+        <div class="mission-label">Missão do dia · <span id="mission-num">#001</span></div>
+        <h2 id="mission-title">Carregando ordens...</h2>
+        <div class="mission-briefing" id="mission-briefing">Aguarde instruções do sargento.</div>
+        <div class="mission-task" id="mission-task">&gt; _</div>
+      </article>
+
+      <div class="answer-box">
+        <textarea id="user-answer" placeholder="Escreva sua resposta em INGLÊS, recruta..." autocomplete="off" spellcheck="false"></textarea>
+        <button class="btn" id="submit-btn">ENVIAR RESPOSTA</button>
+      </div>
+
+      <div id="sarge-output" class="sarge hidden">
+        <div class="sarge-body" id="sarge-body"></div>
+      </div>
+
+      <div id="error-box" class="error hidden"></div>
+
+      <div class="actions">
+        <button class="btn secondary" id="next-mission-btn">PRÓXIMA MISSÃO</button>
+        <button class="btn ghost" id="settings-btn">AJUSTES</button>
+      </div>
+
+      <div class="history" id="history">
+        <h3>REGISTRO DE OPERAÇÕES</h3>
+        <div id="log"></div>
+      </div>
+    </section>
+
+    <!-- VOICE: conversa livre -->
+    <section id="voice-screen" class="voice-screen hidden">
+      <div class="voice-status" id="voice-status">APERTE E SEGURE PRA FALAR</div>
+
+      <button class="mic-button" id="mic-btn" aria-label="Microfone">🎤</button>
+
+      <div class="voice-hint">
+        Fale em <b style="color:var(--gold);">INGLÊS</b>, recruta.<br>
+        Mantenha apertado enquanto fala. Solte quando terminar.
+      </div>
+
+      <div class="voice-transcript" id="voice-transcript"></div>
+
+      <div id="voice-response" class="voice-response hidden">
+        <div class="voice-response-body" id="voice-response-body"></div>
+      </div>
+
+      <div class="voice-controls">
+        <button id="stop-speak-btn" disabled>PARAR ÁUDIO</button>
+        <button id="replay-btn" disabled>OUVIR DE NOVO</button>
+        <button id="clear-voice-btn">LIMPAR</button>
+      </div>
+
+      <div id="voice-error" class="error hidden"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings-screen" class="setup hidden">
+      <h2>QUARTEL-GENERAL</h2>
+      <label>NÍVEL DO SOLDADO</label>
+      <select id="level-select" style="width:100%;background:var(--black);border:1px solid var(--olive-light);color:var(--paper);padding:12px;font-family:inherit;font-size:12px;">
+        <option value="beginner">RECRUTA (básico)</option>
+        <option value="intermediate">CABO (intermediário)</option>
+        <option value="advanced">SARGENTO (avançado)</option>
+      </select>
+
+      <label style="margin-top:16px;">AÇÕES</label>
+      <button class="btn ghost" id="change-key-btn">TROCAR CHAVE API</button>
+      <button class="btn ghost" id="reset-progress-btn" style="margin-top:8px;">ZERAR PROGRESSO</button>
+      <button class="btn" id="back-btn" style="margin-top:16px;">VOLTAR PRO FRONT</button>
+    </section>
+
+  </main>
+
+  <footer>SGT HAMMER · UNIT 07114 · UNAUTHORIZED RETREAT PUNISHABLE</footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
