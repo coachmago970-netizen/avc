@@ -209,7 +209,7 @@ function renderLog() {
 }
 
 // ============================================================
-// CHAMADA API CLAUDE
+// CHAMADA API GEMINI (missões)
 // ============================================================
 async function askSergeant(userAnswer) {
   const apiKey = STORE.key();
@@ -225,19 +225,21 @@ RESPOSTA DO RECRUTA:
 
 Avalie a resposta no personagem de SGT. HAMMER seguindo EXATAMENTE o formato obrigatório.`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1200,
-      system: buildSystemPrompt(STORE.level()),
-      messages: [{ role: 'user', content: userMsg }]
+      systemInstruction: { parts: [{ text: buildSystemPrompt(STORE.level()) }] },
+      contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+      generationConfig: { temperature: 0.9, maxOutputTokens: 1200 },
+      safetySettings: [
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+      ]
     })
   });
 
@@ -249,7 +251,8 @@ Avalie a resposta no personagem de SGT. HAMMER seguindo EXATAMENTE o formato obr
   }
 
   const data = await response.json();
-  return data.content.map(b => b.text || '').join('');
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  return parts.map(p => p.text || '').join('');
 }
 
 function extractXP(text) {
@@ -511,20 +514,27 @@ async function handleVoiceTurn(userText) {
   // Manter só as últimas 10 trocas pra não estourar tokens
   if (VOICE.conversation.length > 20) VOICE.conversation = VOICE.conversation.slice(-20);
 
+  // Converter formato Claude (user/assistant) pro formato Gemini (user/model)
+  const geminiContents = VOICE.conversation.map(m => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }]
+  }));
+
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 300,
-        system: buildVoiceSystemPrompt(STORE.level()),
-        messages: VOICE.conversation
+        systemInstruction: { parts: [{ text: buildVoiceSystemPrompt(STORE.level()) }] },
+        contents: geminiContents,
+        generationConfig: { temperature: 0.95, maxOutputTokens: 300 },
+        safetySettings: [
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' }
+        ]
       })
     });
 
@@ -536,7 +546,10 @@ async function handleVoiceTurn(userText) {
     }
 
     const data = await response.json();
-    const reply = data.content.map(b => b.text || '').join('').trim();
+    const parts = data?.candidates?.[0]?.content?.parts || [];
+    const reply = parts.map(p => p.text || '').join('').trim();
+    if (!reply) throw new Error('Resposta vazia do sargento');
+
     VOICE.conversation.push({ role: 'assistant', content: reply });
     VOICE.lastResponse = reply;
 
@@ -556,8 +569,8 @@ function wire() {
   // Setup
   $('#save-key-btn').addEventListener('click', () => {
     const key = $('#api-key').value.trim();
-    if (!key.startsWith('sk-ant-')) {
-      alert('Chave inválida, recruta. Deve começar com sk-ant-');
+    if (key.length < 20) {
+      alert('Chave inválida, recruta. Muito curta.');
       return;
     }
     STORE.setKey(key);
